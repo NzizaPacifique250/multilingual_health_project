@@ -1,0 +1,19 @@
+# Multilingual Health QA — pinned for Colab reproducibility (rubric crit. 9)
+# Core
+transformers==4.44.2
+datasets==2.21.0
+accelerate==0.34.2
+sentencepiece==0.2.0
+protobuf==3.20.3
+# Parameter-efficient fine-tuning (reserve / low-resource adapters)
+peft==0.12.0
+# Metrics — organizers use `rouge-score`; we mirror it exactly
+rouge-score==0.1.2
+sacrebleu==2.4.3
+# Data / EDA / plotting
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.6
+seaborn>=0.12
+# torch is provided by the Colab runtime; pin locally if installing yourself:
+# torch==2.4.0
