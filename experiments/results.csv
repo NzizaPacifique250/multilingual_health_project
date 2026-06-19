@@ -1,0 +1,3 @@
+run_id,date,model,strategy,epochs,lr,max_input_len,gen_max_len,num_beams,no_repeat_ngram,length_penalty,upsample_lr,val_rouge1,val_rougeL,val_proxy,lb_score,notes
+B0_tfidf,2026-06-17,tfidf-char(3-5)-knn,retrieval-per-subset,,,,,,,,,0.4212,0.3660,0.3936,,GPU-free anchor; copies nearest train answer per subset. Amharic worst (0.14).
+B1_mt5base_lora,2026-06-19,google/mt5-base,LoRA (r=16 alpha=32) joint task-prefixed training,3,3e-4,128,256,4,3,1.0,1.0,0.2036,0.1583,0.1809,,Local fine-tuning on RTX 5070 GPU. Decoupled EVAL_BS=4 and INFER_BS=32. Amharic script guard: 3/462.
