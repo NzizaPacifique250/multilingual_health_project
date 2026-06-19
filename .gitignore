@@ -22,3 +22,6 @@ wandb/
 # OS
 .DS_Store
 Thumbs.db
+
+# PDF build artifacts (resized image copies)
+reports/_pdf_assets/
