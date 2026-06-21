@@ -13,6 +13,12 @@ from __future__ import annotations
 import argparse
 import os
 
+# PyTorch only: stop transformers from importing TensorFlow/Flax (clashes with the pinned
+# protobuf 3.20.3 on Colab — see src/train.py for the full explanation).
+os.environ.setdefault("USE_TF", "0")
+os.environ.setdefault("USE_FLAX", "0")
+os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+
 import pandas as pd
 
 from . import data as D

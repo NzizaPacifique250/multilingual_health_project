@@ -18,6 +18,13 @@ import argparse
 import json
 import os
 
+# We train with PyTorch only. Stop transformers from importing TensorFlow/Flax — on Colab
+# their pre-installed TF clashes with our pinned protobuf (3.20.3, needed by the mT5
+# sentencepiece tokenizer) and raises "cannot import name 'runtime_version'".
+os.environ.setdefault("USE_TF", "0")
+os.environ.setdefault("USE_FLAX", "0")
+os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+
 import numpy as np
 
 # ---- Python 3.14 Compatibility Monkey-Patch for dill/datasets ----
