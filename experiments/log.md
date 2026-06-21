@@ -33,6 +33,23 @@ manual review + manual upload (we do not auto-submit).
 
 ---
 
+## B2 — mt5-base LoRA + low-resource upsampling + recall decoding  ·  2026-06-21 (running)
+- **Hypothesis:** B1 underfit (3 epochs) and under-generated, starving ROUGE recall. Holding
+  the model + LoRA config fixed, three changes should lift the proxy above B1 and toward B0:
+  (1) **5 epochs** for more adapter steps, (2) **low-resource upsampling ×3** (Amh/Swa/Lug/Aka)
+  to rescue the weakest subsets, (3) **recall-oriented decoding** (beams 5, length_penalty 1.3,
+  gen_min_len 16) since B1's outputs were too short.
+- **Config:** google/mt5-base + LoRA (r=16, alpha=32, dropout=0.05), 5 epochs, lr=3e-4,
+  train_bs=8, eval_bs=8 (grad_accum=2 → eff. 16), max_input_len=128, max_target_len=256,
+  upsample_low_resource=3.0, num_beams=5, gen_max_len=256, gen_min_len=16, no_repeat_ngram=3,
+  length_penalty=1.3, bf16 (A100/L4) or fp16 fallback, gradient_checkpointing.
+- **Run:** `notebooks/colab_run.ipynb` (cell 6). Tag `B2_mt5base_lora`.
+- **Val:** R1 _ · RL _ · proxy _   (fill after run)
+- **LB:** _ (after manual review + upload)
+- **Takeaway:** _ (did epochs/upsampling/decoding close the gap to B0? next: B5 NLLB-600M.)
+
+---
+
 ## Template for the next entry
 
 ## <run_id> — <one-line description>  ·  <date>
