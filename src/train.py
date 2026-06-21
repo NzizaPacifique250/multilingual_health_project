@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 
 # We train with PyTorch only. Stop transformers from importing TensorFlow/Flax — on Colab
 # their pre-installed TF clashes with our pinned protobuf (3.20.3, needed by the mT5
@@ -27,24 +28,29 @@ os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
 
 import numpy as np
 
-# ---- Python 3.14 Compatibility Monkey-Patch for dill/datasets ----
-import pickle
-import dill
-import datasets.utils._dill
+# ---- Python 3.14 compatibility shim for datasets/dill fingerprinting ----
+# On Python 3.14, pickle._Pickler._batch_setitems gained an `obj` parameter and datasets'
+# own dict-key-sorting patch breaks; we restore deterministic fingerprinting there. On
+# earlier Pythons (e.g. Colab's 3.12) _batch_setitems takes only (self, items) and datasets
+# works natively — applying this patch would pass an extra arg and raise TypeError, so skip.
+if sys.version_info >= (3, 14):
+    import pickle
+    import dill
+    import datasets.utils._dill
 
-dill.Pickler._batch_setitems = lambda self, items, obj=None: pickle._Pickler._batch_setitems(self, items, obj)
+    dill.Pickler._batch_setitems = lambda self, items, obj=None: pickle._Pickler._batch_setitems(self, items, obj)
 
-def patched_datasets_setitems(self, items, obj=None):
-    if getattr(self, "_legacy_no_dict_keys_sorting", False):
-        return pickle._Pickler._batch_setitems(self, items, obj)
-    try:
-        sorted_items = sorted(items)
-    except Exception:
-        from datasets.fingerprint import Hasher
-        sorted_items = sorted(items, key=lambda x: Hasher.hash(x[0]))
-    return pickle._Pickler._batch_setitems(self, sorted_items, obj)
+    def patched_datasets_setitems(self, items, obj=None):
+        if getattr(self, "_legacy_no_dict_keys_sorting", False):
+            return pickle._Pickler._batch_setitems(self, items, obj)
+        try:
+            sorted_items = sorted(items)
+        except Exception:
+            from datasets.fingerprint import Hasher
+            sorted_items = sorted(items, key=lambda x: Hasher.hash(x[0]))
+        return pickle._Pickler._batch_setitems(self, sorted_items, obj)
 
-datasets.utils._dill.Pickler._batch_setitems = patched_datasets_setitems
+    datasets.utils._dill.Pickler._batch_setitems = patched_datasets_setitems
 # ------------------------------------------------------------------
 
 from . import data as D
